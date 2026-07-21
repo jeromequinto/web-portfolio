@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
        9. HERO NAME — STAGGERED LETTER-REVEAL MOTION
        ========================================================================== */
     const nameEl = document.querySelector('.name');
-    if (nameEl && !nameEl.classList.contains('letter-reveal')) {
+    if (nameEl) {
         const words = nameEl.textContent.trim().split(/\s+/);
         nameEl.textContent = '';
         nameEl.classList.add('letter-reveal');
