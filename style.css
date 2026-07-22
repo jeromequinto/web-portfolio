@@ -29,6 +29,15 @@
     --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     --hover-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Premium gradient typography (headings) — blue -> violet -> pink -> cyan -> teal */
+    --gradient-text: linear-gradient(120deg, #60a5fa 0%, #a78bfa 26%, #f472b6 50%, #22d3ee 75%, #2dd4bf 100%);
+    --gradient-glow: rgba(139, 92, 246, 0.22);
+
+    /* Premium glass-mirror frame accents (About Me picture) */
+    --glass-frame-border: linear-gradient(135deg, #629FAD 0%, #a78bfa 30%, #f472b6 60%, #296374 100%);
+    --glass-frame-tint: rgba(255, 255, 255, 0.06);
+    --glass-frame-glow: rgba(98, 159, 173, 0.35);
 }
 
 [data-theme="light"] {
@@ -50,6 +59,14 @@
     --glass-bg: rgba(255, 255, 255, 0.9);
     --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
     --hover-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+
+    /* Deeper/more saturated for contrast against white */
+    --gradient-text: linear-gradient(120deg, #2563eb 0%, #7c3aed 26%, #db2777 50%, #0891b2 75%, #0d9488 100%);
+    --gradient-glow: transparent;
+
+    --glass-frame-border: linear-gradient(135deg, #0C2C55 0%, #296374 35%, #629FAD 70%, #7c3aed 100%);
+    --glass-frame-tint: rgba(12, 44, 85, 0.05);
+    --glass-frame-glow: rgba(41, 99, 116, 0.25);
 }
 
 /* ==========================================================================
@@ -112,7 +129,28 @@ img { max-width: 100%; display: block; }
 }
 
 .section-header { margin-bottom: 3rem; text-align: left; }
-.section-header h2 { font-size: 2.5rem; font-weight: 700; }
+.section-header h2,
+.featured-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: inline-block;
+    background-image: var(--gradient-text);
+    background-size: 200% auto;
+    background-position: 0% center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--accent-hero);
+    filter: drop-shadow(0 0 22px var(--gradient-glow));
+    animation: gradientTextShift 9s ease-in-out infinite alternate;
+}
+@keyframes gradientTextShift {
+    from { background-position: 0% center; }
+    to { background-position: 100% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .section-header h2, .featured-header h2 { animation: none; }
+}
 
 .line {
     width: 60px;
@@ -256,22 +294,26 @@ header {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-image: url('assets/img/hero-portrait-bg.jpg');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.1;
-    /* -90% vignette: only a faint, soft core near dead-center survives,
-       fading to fully transparent well before the edges */
-    -webkit-mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.5) 30%, transparent 70%);
-    mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.5) 30%, transparent 70%);
+    background-image:
+        linear-gradient(100deg, var(--bg-primary) 0%, rgba(11, 17, 32, 0.5) 30%, rgba(11, 17, 32, 0.1) 52%, transparent 78%),
+        url('assets/img/hero-portrait-bg.jpg');
+    background-size: cover, contain;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    opacity: 0.9;
+    /* Wide, soft vignette: the image now reads clearly across most of the
+       hero, fading only at the very edges instead of being nearly hidden. */
+    -webkit-mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.92) 42%, rgba(0,0,0,0.55) 68%, transparent 94%);
+    mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.92) 42%, rgba(0,0,0,0.55) 68%, transparent 94%);
     pointer-events: none;
 }
 [data-theme="light"] .hero-portrait-bg {
-    opacity: 0.22;
-    mix-blend-mode: multiply;
-    -webkit-mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.6) 35%, transparent 72%);
-    mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.6) 35%, transparent 72%);
+    opacity: 0.85;
+    background-image:
+        linear-gradient(100deg, var(--bg-primary) 0%, rgba(248, 250, 252, 0.55) 30%, rgba(248, 250, 252, 0.15) 52%, transparent 78%),
+        url('assets/img/hero-portrait-bg.jpg');
+    -webkit-mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.92) 45%, rgba(0,0,0,0.55) 70%, transparent 94%);
+    mask-image: radial-gradient(circle at center, #000 0%, rgba(0,0,0,0.92) 45%, rgba(0,0,0,0.55) 70%, transparent 94%);
 }
 .hero-content { max-width: 700px; z-index: 2; }
 .greeting {
@@ -361,6 +403,7 @@ header {
     width: 100%;
     max-width: 380px;
     margin: 0 auto;
+    perspective: 1000px;
 }
 
 /* FIX: The Background Color Splash is now here so it glows OUTSIDE the box without getting cut off */
@@ -375,23 +418,62 @@ header {
     pointer-events: none;
 }
 
-/* The Bouncing Float Frame */
+/* Premium glass-mirror frame: animated gradient ring behind the image, softly
+   glowing, sitting just outside the photo so it reads as a glass bezel. */
+.about-image::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    z-index: 1;
+    border-radius: 20px;
+    padding: 2px;
+    background: var(--glass-frame-border);
+    background-size: 220% 220%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    box-shadow: 0 0 30px var(--glass-frame-glow);
+    animation: glassBorderShift 7s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+@keyframes glassBorderShift {
+    from { background-position: 0% 50%; }
+    to { background-position: 100% 50%; }
+}
+
+/* The Bouncing Float Frame — glass card surface with inner glow, soft outer
+   depth shadow, and a mouse-driven 3D tilt (desktop only, set via --tiltX /
+   --tiltY in script.js). The float keyframe references those same custom
+   properties inside its own transform so floating + live tilt combine on
+   this ONE element without a second, competing transform declaration. */
 .image-wrapper {
     position: relative;
-    border-radius: 12px;
+    border-radius: 20px;
     z-index: 2;
-    animation: profileFloat 5s ease-in-out infinite;
     overflow: hidden; /* FIX: This keeps the mirror shine strictly INSIDE your picture box! */
-    border: 3px solid var(--border-color);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 0 24px var(--glass-frame-tint);
     aspect-ratio: 1/1; /* Keeps it a perfect square even if your image isn't loaded yet */
     background: var(--bg-secondary); /* Dark slate backup box if image link is empty */
+    animation: profileFloat 5s ease-in-out infinite;
+    transition: box-shadow 0.35s ease;
+    will-change: transform;
+}
+.about-image:hover .image-wrapper {
+    box-shadow:
+        0 26px 55px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+        inset 0 0 30px var(--glass-frame-tint);
 }
 
 @keyframes profileFloat {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
+    0%   { transform: translateY(0px)    perspective(900px) rotateX(calc(var(--tiltY, 0) * 1deg)) rotateY(calc(var(--tiltX, 0) * 1deg)); }
+    50%  { transform: translateY(-15px)  perspective(900px) rotateX(calc(var(--tiltY, 0) * 1deg)) rotateY(calc(var(--tiltX, 0) * 1deg)); }
+    100% { transform: translateY(0px)    perspective(900px) rotateX(calc(var(--tiltY, 0) * 1deg)) rotateY(calc(var(--tiltX, 0) * 1deg)); }
 }
 
 /* Clean image fit */
@@ -1186,6 +1268,20 @@ body, html { max-width: 100%; }
     .section { padding: 70px 20px; }
     .section-header h2 { font-size: 2rem; }
     #hero { padding-top: 100px; min-height: auto; padding-bottom: 60px; }
+    .hero-portrait-bg {
+        opacity: 0.55;
+        background-image:
+            linear-gradient(180deg, var(--bg-primary) 0%, rgba(11, 17, 32, 0.6) 38%, rgba(11, 17, 32, 0.2) 68%, transparent 100%),
+            url('assets/img/hero-portrait-bg.jpg');
+        background-position: center top, center;
+    }
+    [data-theme="light"] .hero-portrait-bg {
+        opacity: 0.5;
+        background-image:
+            linear-gradient(180deg, var(--bg-primary) 0%, rgba(248, 250, 252, 0.65) 38%, rgba(248, 250, 252, 0.25) 68%, transparent 100%),
+            url('assets/img/hero-portrait-bg.jpg');
+        background-position: center top, center;
+    }
     .hero-buttons { flex-wrap: wrap; }
     .hero-description { max-width: 100%; }
     .certificates-grid { grid-template-columns: 1fr; gap: 1.75rem; }
