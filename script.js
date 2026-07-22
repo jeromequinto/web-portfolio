@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
        9. HERO NAME — STAGGERED LETTER-REVEAL MOTION
        ========================================================================== */
     const nameEl = document.querySelector('.name');
-    if (nameEl) {
+    if (nameEl && !nameEl.classList.contains('letter-reveal')) {
         const words = nameEl.textContent.trim().split(/\s+/);
         nameEl.textContent = '';
         nameEl.classList.add('letter-reveal');
@@ -427,9 +427,27 @@ document.addEventListener('DOMContentLoaded', () => {
        scroll-progressive timeline, and the ambient background dots.
        ========================================================================== */
 
+    // -- About Me glass profile picture: subtle desktop-only 3D tilt --
+    const aboutImageCard = document.querySelector('.about-image');
+    if (aboutImageCard && !isTouchDevice) {
+        const aboutImageInner = aboutImageCard.querySelector('.image-wrapper');
+        if (aboutImageInner) {
+            aboutImageCard.addEventListener('mousemove', (e) => {
+                const rect = aboutImageCard.getBoundingClientRect();
+                const relX = (e.clientX - rect.left) / rect.width;
+                const relY = (e.clientY - rect.top) / rect.height;
+                aboutImageInner.style.setProperty('--tiltX', ((relX - 0.5) * 14).toFixed(2));
+                aboutImageInner.style.setProperty('--tiltY', ((0.5 - relY) * 12).toFixed(2));
+            });
+            aboutImageCard.addEventListener('mouseleave', () => {
+                aboutImageInner.style.setProperty('--tiltX', 0);
+                aboutImageInner.style.setProperty('--tiltY', 0);
+            });
+        }
+    }
+
     // -- Generic tilt cards (desktop cursor tilt+glow, mobile tap-flip) --
-    const tiltCards = document.querySelectorAll('.tilt-card');
-    tiltCards.forEach(card => {
+    const tiltCards = document.querySelectorAll('.tilt-card');    tiltCards.forEach(card => {
         const inner = card.querySelector('.tilt-card-inner');
         if (!inner) return;
 
